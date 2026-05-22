@@ -1,0 +1,43 @@
+{
+  "name": "fireslide-codex-plugin",
+  "version": "0.1.0",
+  "description": "Create, edit, and export Fireslide presentations through the hosted Fireslide MCP server.",
+  "author": {
+    "name": "FireslideAI",
+    "email": "support@fireslide.ai",
+    "url": "https://fireslide.ai"
+  },
+  "homepage": "https://fireslide.ai",
+  "repository": "https://github.com/FireSlideAI/fireslide-codex-plugin",
+  "license": "MIT",
+  "keywords": [
+    "presentations",
+    "slides",
+    "pptx",
+    "mcp",
+    "fireslide"
+  ],
+  "skills": "./skills/",
+  "mcpServers": "./.mcp.json",
+  "interface": {
+    "displayName": "Fireslide",
+    "shortDescription": "Generate and refine presentation decks.",
+    "longDescription": "Fireslide connects Codex to the hosted Fireslide MCP server for style-aware presentation authoring, media-assisted slide creation, editor handoff, and PPTX export.",
+    "developerName": "FireslideAI",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Write",
+      "OAuth"
+    ],
+    "websiteURL": "https://fireslide.ai",
+    "privacyPolicyURL": "https://fireslide.ai/privacy",
+    "termsOfServiceURL": "https://fireslide.ai/terms",
+    "defaultPrompt": [
+      "Create a Fireslide deck from this brief.",
+      "Turn these notes into a presentation.",
+      "Find a style and render a PPTX-ready deck."
+    ],
+    "brandColor": "#FF6A00"
+  }
+}

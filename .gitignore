@@ -1,0 +1,21 @@
+.DS_Store
+Thumbs.db
+
+# Local/editor state
+.vscode/
+.idea/
+*.swp
+
+# Secrets and local env
+.env
+.env.*
+*.pem
+*.key
+*.json.key
+service-account*.json
+
+# Dependency/cache folders if someone adds scripts later
+node_modules/
+.venv/
+__pycache__/
+.pytest_cache/
