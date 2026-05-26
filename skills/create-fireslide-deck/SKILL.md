@@ -18,6 +18,7 @@ Use the hosted Fireslide MCP server to create editable presentation decks that o
    - Call `list_styles` with the user's topic, audience, and style intent.
    - Choose the closest style returned by the server.
    - Call `get_style` for the selected style before authoring slides.
+   - Prefer a lightweight first call to inspect available subtype keys, then request only the subtype templates needed for the deck when the tool supports that mode.
 
 3. Author against the returned style contract.
    - Use only `sub_type` values returned by `get_style`.
