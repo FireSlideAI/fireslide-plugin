@@ -59,6 +59,22 @@ The plugin root is the folder that contains:
 skills/
 ```
 
+## Codex CLI
+
+If you only need the hosted Fireslide MCP tools, Codex can register the server directly:
+
+```bash
+codex mcp add fireslide --url https://mcp.fireslide.ai/
+```
+
+To authenticate immediately instead of waiting for first use:
+
+```bash
+codex mcp login fireslide
+```
+
+This direct MCP setup is the closest equivalent to Claude Code's one-command install. It exposes the Fireslide MCP tools, but it does not install the Codex plugin wrapper or the `create-fireslide-deck` skill. For the full Codex plugin experience, install this repository through Codex's plugin UI.
+
 ## Claude Code
 
 Claude Code does not need the Codex plugin wrapper. It can connect to the same hosted MCP server directly:
