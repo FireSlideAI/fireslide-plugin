@@ -1,6 +1,6 @@
-# Fireslide Codex Plugin
+# Fireslide Plugin
 
-Fireslide is a thin Codex plugin that connects Codex to the hosted Fireslide MCP server.
+Fireslide is a thin plugin and MCP setup that connects agents to the hosted Fireslide MCP server.
 
 It lets Codex create editable slide decks, choose Fireslide styles, use media/news tools, and return a Fireslide editor URL.
 

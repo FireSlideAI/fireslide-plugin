@@ -4,6 +4,7 @@ Thumbs.db
 # Local/editor state
 .vscode/
 .idea/
+.codex/
 *.swp
 
 # Secrets and local env
