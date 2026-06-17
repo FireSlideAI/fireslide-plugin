@@ -11,8 +11,9 @@ Use the hosted Fireslide MCP server to create editable presentation decks that o
 
 1. Treat normal presentation requests as deck creation requests.
    - Examples: "make a deck", "help me create slides", "turn this into a presentation", "build a pitch deck", "make an executive briefing".
-   - Ask a clarifying question only when a missing answer materially changes the deck.
-   - Otherwise infer slide count, audience, language, and tone from the prompt.
+   - Ask a short clarifying question before rendering when missing basics materially change the result: audience, goal, tone, slide count, source material, language, or desired output.
+   - Do not ask for chain-of-thought. Ask for user-facing brief details only.
+   - If the request is already specific enough, infer slide count, audience, language, and tone from the prompt.
 
 2. Pick a visual system.
    - Call `list_styles` with the user's topic, audience, and style intent.
@@ -27,15 +28,18 @@ Use the hosted Fireslide MCP server to create editable presentation decks that o
    - Use explicit `elements` when freeform layout control is needed.
 
 4. Use media and research tools intentionally.
-   - `search_news`: current events, recent company news, daily briefings, market updates.
-   - `search_images`: real photos, products, places, people, logos, screenshots.
+   - Use Fireslide search tools only when the returned result will be placed in the deck artifact.
+   - For general background research, rely on the host assistant's available context/search or ask the user for source material.
+   - `search_news`: current events, recent company news, daily briefings, market updates that will be cited or summarized on slides.
+   - `search_images`: real photos, products, places, people, logos, screenshots that will be used on slides.
    - `generate_image`: bespoke illustrations or scenes.
    - `make_svg`: one transparent hero cutout or object on a colored background.
    - `make_meme`: humor, meme recaps, or lightweight interstitial slides.
 
 5. Render.
    - Call `render_presentation` with `user_input`, `style_name`, `title`, and complete `slides`.
-   - Return the `view_url` to the user.
+   - Return the Fireslide editor URL to the user.
+   - If the host renders MCP app/widget responses, let the deck preview widget act as the immediate preview. If not, the editor URL is the reliable fallback.
    - Tell the user the deck can be edited and exported from Fireslide.
 
 ## Current News
@@ -44,8 +48,9 @@ For prompts mentioning latest, today, current, recent, news, this week, market u
 
 1. Call `search_news` before drafting.
 2. Use returned article titles, source domains, snippets, dates, and images as source material.
-3. Do not invent fresh headlines, quotes, dates, or exact statistics.
-4. If `search_news` fails or is quota-limited, tell the user and retry once with a simpler query.
+3. Put only the relevant sourced points into the deck; do not call news search for facts that will not appear in the deck.
+4. Do not invent fresh headlines, quotes, dates, or exact statistics.
+5. If `search_news` fails or is quota-limited, tell the user and retry once with a simpler query.
 
 ## Freeform Element Rules
 
@@ -87,4 +92,5 @@ After rendering, respond with:
 - deck title
 - one-sentence summary of what was created
 - Fireslide editor URL
+- note that compatible MCP app hosts may show an inline deck preview
 - any media, search, or quota limitations encountered
