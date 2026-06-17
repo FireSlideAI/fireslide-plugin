@@ -1,17 +1,18 @@
-# Fireslide Plugin
+# Fireslide Codex Plugin
 
-Fireslide is a thin plugin and MCP setup that connects agents to the hosted Fireslide MCP server.
+Fireslide is a Codex plugin and MCP setup for creating editable presentation decks through the hosted Fireslide MCP server.
 
-It lets Codex create editable slide decks, choose Fireslide styles, use media/news tools, and return a Fireslide editor URL.
+It lets Codex choose Fireslide styles, use deck-specific media and news tools, render editable decks, show deck preview metadata on compatible hosts, and return a Fireslide editor URL.
 
-The plugin does not include the Fireslide backend or renderer. It only points supported agents at the hosted MCP endpoint.
+The plugin does not include the Fireslide backend or renderer. It only packages Codex metadata, a deck-creation skill, and a remote MCP server config for the hosted Fireslide service.
 
 ## What This Repo Contains
 
-- Codex plugin metadata
-- A remote MCP server config pointing to `https://mcp.fireslide.ai/`
+- A Codex marketplace at `.agents/plugins/marketplace.json`
+- The Fireslide plugin at `plugins/fireslide`
+- Codex plugin metadata at `plugins/fireslide/.codex-plugin/plugin.json`
+- Remote MCP config at `plugins/fireslide/.mcp.json`
 - A Codex skill that teaches the deck-creation workflow
-- Public setup documentation
 
 ## What This Repo Does Not Contain
 
@@ -24,15 +25,51 @@ The plugin does not include the Fireslide backend or renderer. It only points su
 
 All proprietary product logic stays behind the hosted Fireslide MCP service.
 
-## MCP Server
+## Hosted MCP Server
 
-The plugin connects to:
+The plugin connects to the hosted Streamable HTTP MCP endpoint:
 
 ```text
-https://mcp.fireslide.ai/
+https://mcp.fireslide.ai
 ```
 
-On first use, Codex will authenticate through Fireslide OAuth.
+On first use, Codex authenticates through Fireslide OAuth. Do not use `https://mcp.fireslide.ai/sse`; that path is not the current Codex endpoint.
+
+## Install In Codex
+
+Recommended setup is to add this repository as a Codex plugin marketplace, then install the Fireslide plugin from Codex's plugin UI.
+
+```bash
+codex plugin marketplace add FireSlideAI/fireslide-plugin
+```
+
+Then open Codex, go to Plugins, choose the Fireslide marketplace, and install Fireslide. Start a new thread after installing so Codex loads the skill and MCP tools.
+
+For local development from a clone:
+
+```bash
+codex plugin marketplace add /absolute/path/to/fireslide-plugin
+```
+
+Then install Fireslide from the local marketplace in the Codex plugin UI and start a new thread.
+
+## Direct MCP Fallback
+
+If you only need the hosted Fireslide MCP tools and do not need the Codex plugin skill, register the server directly:
+
+```bash
+codex mcp add fireslide --url https://mcp.fireslide.ai
+codex mcp login fireslide
+```
+
+Equivalent `~/.codex/config.toml`:
+
+```toml
+[mcp_servers.fireslide]
+url = "https://mcp.fireslide.ai"
+```
+
+Direct MCP exposes the tools, but it does not install the `create-fireslide-deck` skill or plugin metadata. For normal users, prefer the plugin marketplace setup.
 
 ## Main Tools
 
@@ -47,62 +84,34 @@ The hosted MCP server exposes tools including:
 - `make_meme`
 - `search_news`
 
-## Local Install
-
-Install this plugin through Codex's plugin UI from this repository, or clone it locally and point Codex at the plugin folder.
-
-The plugin root is the folder that contains:
-
-```text
-.codex-plugin/plugin.json
-.mcp.json
-skills/
-```
-
-## Codex CLI
-
-If you only need the hosted Fireslide MCP tools, Codex can register the server directly:
-
-```bash
-codex mcp add fireslide --url https://mcp.fireslide.ai/
-```
-
-To authenticate immediately instead of waiting for first use:
-
-```bash
-codex mcp login fireslide
-```
-
-This direct MCP setup is the closest equivalent to Claude Code's one-command install. It exposes the Fireslide MCP tools, but it does not install the Codex plugin wrapper or the `create-fireslide-deck` skill. For the full Codex plugin experience, install this repository through Codex's plugin UI.
+`render_presentation` returns an editor URL and structured deck preview metadata. Hosts that support MCP app widgets may render an inline deck preview; other hosts should still show the text response and editor URL.
 
 ## Claude Code
 
-Claude Code does not need the Codex plugin wrapper. It can connect to the same hosted MCP server directly:
+Claude Code does not use the Codex plugin wrapper. Connect it directly to the hosted MCP server:
 
 ```bash
-claude mcp add --transport http fireslide https://mcp.fireslide.ai/
+claude mcp add --transport http fireslide https://mcp.fireslide.ai
 ```
 
-On first use, Claude Code should open the Fireslide OAuth flow. After auth, the same hosted MCP tools are available.
+On first use, Claude Code should open the Fireslide OAuth flow. After auth, the same hosted MCP tools are available, but the Codex-specific skill is not installed.
 
-If your client prefers JSON config, use:
+## Claude Desktop And Other MCP Clients
+
+Use a remote HTTP MCP server config if your client supports remote MCP with OAuth:
 
 ```json
 {
   "mcpServers": {
     "fireslide": {
       "type": "http",
-      "url": "https://mcp.fireslide.ai/"
+      "url": "https://mcp.fireslide.ai"
     }
   }
 }
 ```
 
-## Compatibility
-
-- Codex: use this plugin repo.
-- Claude Code: connect directly to `https://mcp.fireslide.ai/`.
-- Other MCP clients: use the `.mcp.json` shape above if they support remote HTTP MCP servers with OAuth.
+Widget rendering is host-dependent. Treat the Fireslide editor URL as the stable fallback across clients.
 
 ## Usage Examples
 

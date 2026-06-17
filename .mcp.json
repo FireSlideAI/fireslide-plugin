@@ -1,9 +1,0 @@
-{
-  "mcpServers": {
-    "fireslide": {
-      "type": "http",
-      "url": "https://mcp.fireslide.ai/",
-      "note": "Hosted Fireslide MCP server. Uses OAuth on first connection. Tools include list_styles, get_style, search_images, generate_image, make_svg, make_meme, search_news, and render_presentation."
-    }
-  }
-}
