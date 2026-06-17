@@ -37,13 +37,39 @@ On first use, Codex authenticates through Fireslide OAuth. Do not use `https://m
 
 ## Install In Codex
 
-Recommended setup is to add this repository as a Codex plugin marketplace, then install the Fireslide plugin from Codex's plugin UI.
+Recommended setup is to add this repository as a Codex plugin marketplace, then install the Fireslide plugin from that marketplace.
+
+First, make sure your Codex CLI exposes plugin install commands:
+
+```bash
+codex plugin --help
+```
+
+You should see `add`, `list`, `marketplace`, and `remove`. If `add` is missing, update Codex first:
+
+```bash
+codex update
+```
+
+Then add the Fireslide marketplace:
 
 ```bash
 codex plugin marketplace add FireSlideAI/fireslide-plugin
 ```
 
-Then open Codex, go to Plugins, choose the Fireslide marketplace, and install Fireslide. Start a new thread after installing so Codex loads the skill and MCP tools.
+Confirm Codex can see the plugin:
+
+```bash
+codex plugin list --marketplace fireslide
+```
+
+Install Fireslide:
+
+```bash
+codex plugin add fireslide@fireslide
+```
+
+Start a new Codex thread after installing so Codex loads the Fireslide skill and MCP tools. If you prefer the app UI, open Plugins, choose the Fireslide marketplace, and install Fireslide there.
 
 For local development from a clone:
 
@@ -51,7 +77,11 @@ For local development from a clone:
 codex plugin marketplace add /absolute/path/to/fireslide-plugin
 ```
 
-Then install Fireslide from the local marketplace in the Codex plugin UI and start a new thread.
+Then install Fireslide from the local marketplace:
+
+```bash
+codex plugin add fireslide@fireslide
+```
 
 ## Direct MCP Fallback
 
