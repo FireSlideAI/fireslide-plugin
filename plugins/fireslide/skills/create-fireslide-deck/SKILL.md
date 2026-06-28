@@ -11,6 +11,7 @@ Use the hosted Fireslide MCP server to create editable presentation decks that o
 
 1. Treat normal presentation requests as deck creation requests.
    - Examples: "make a deck", "help me create slides", "turn this into a presentation", "build a pitch deck", "make an executive briefing".
+   - If the user provides an existing Fireslide editor URL, presentation id, or asks to change a deck just rendered in this conversation, treat it as a revision request and use the Existing Deck Revisions workflow below.
    - Ask a short clarifying question before rendering when missing basics materially change the result: audience, goal, tone, slide count, source material, language, or desired output.
    - Do not ask for chain-of-thought. Ask for user-facing brief details only.
    - If the request is already specific enough, infer slide count, audience, language, and tone from the prompt.
@@ -43,6 +44,31 @@ Use the hosted Fireslide MCP server to create editable presentation decks that o
    - Do not call `show_deck_preview` immediately after `render_presentation`; that creates a second tool card. Use `show_deck_preview` only in a later recovery turn when the user says the inline widget did not appear or asks to recover the already-created deck link.
    - If no widget appears, the editor URL from `render_presentation` is the reliable fallback.
    - Tell the user the deck can be edited and exported from Fireslide.
+
+## Existing Deck Revisions
+
+Use this workflow when the user asks to edit, revise, update, fix, move, delete, or rewrite content in an existing Fireslide deck.
+
+1. Identify the deck id.
+   - Use the `presentation_id` returned by `render_presentation` or `edit_deck`.
+   - If the user gives an editor URL, extract the id from `/editor/decks/{deck_id}`.
+
+2. Fetch the current deck before editing.
+   - Call `get_deck` unless the current slide JSON is already available in this conversation.
+   - Use the returned `slide_number` values for all edit operations.
+
+3. Apply the smallest safe edit.
+   - Call `edit_deck`, not `render_presentation`, for existing deck revisions.
+   - `edit_deck` mutates the same deck id and keeps the same editor URL.
+   - Use one or a few simple operations: `replace`, `insert`, `delete`, or `move`.
+   - For a targeted text or layout tweak inside one slide, preserve the fetched slide and send a `replace` operation for only that slide with the requested element changed. Keep existing element ids, slide metadata, coordinates, z-order, fonts, colors, and unrelated text intact.
+   - When the user names an element id, such as `drag_label`, target that element exactly. If they describe selected text, use the selected-context text, slide number, and element id when available.
+
+4. Return the revision result.
+   - Tell the user the deck was edited in place.
+   - Return the same Fireslide editor URL.
+   - If the host renders MCP app/widget responses, let the widget attached to `edit_deck` act as the immediate preview.
+   - Do not call `show_deck_preview` immediately after `edit_deck`; use it only in a later recovery turn when the inline widget did not appear.
 
 ## Current News
 
