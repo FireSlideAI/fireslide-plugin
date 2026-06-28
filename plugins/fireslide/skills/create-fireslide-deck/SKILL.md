@@ -39,7 +39,9 @@ Use the hosted Fireslide MCP server to create editable presentation decks that o
 5. Render.
    - Call `render_presentation` with `user_input`, `style_name`, `title`, and complete `slides`.
    - Return the Fireslide editor URL to the user.
-   - If the host renders MCP app/widget responses, let the deck preview widget act as the immediate preview. If not, the editor URL is the reliable fallback.
+   - If the host renders MCP app/widget responses, let the widget attached to `render_presentation` act as the immediate preview.
+   - Do not call `show_deck_preview` immediately after `render_presentation`; that creates a second tool card. Use `show_deck_preview` only in a later recovery turn when the user says the inline widget did not appear or asks to recover the already-created deck link.
+   - If no widget appears, the editor URL from `render_presentation` is the reliable fallback.
    - Tell the user the deck can be edited and exported from Fireslide.
 
 ## Current News
@@ -92,5 +94,5 @@ After rendering, respond with:
 - deck title
 - one-sentence summary of what was created
 - Fireslide editor URL
-- note that compatible MCP app hosts may show an inline deck preview
+- note that compatible MCP app hosts may show the inline deck preview attached to the render result
 - any media, search, or quota limitations encountered
