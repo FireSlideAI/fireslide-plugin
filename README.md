@@ -3,6 +3,7 @@
 Fireslide is a Codex plugin and MCP setup for creating editable presentation decks through the hosted Fireslide MCP server.
 
 It lets Codex choose Fireslide styles, use deck-specific media and news tools, render editable decks, show deck preview metadata on compatible hosts, and return a Fireslide editor URL.
+It also guides Codex to revise an existing Fireslide deck in place when the user provides a Fireslide editor URL or presentation id.
 
 The plugin does not include the Fireslide backend or renderer. It only packages Codex metadata, a deck-creation skill, and a remote MCP server config for the hosted Fireslide service.
 
@@ -108,6 +109,9 @@ The hosted MCP server exposes tools including:
 - `list_styles`
 - `get_style`
 - `render_presentation`
+- `get_deck`
+- `edit_deck`
+- `show_deck_preview`
 - `search_images`
 - `generate_image`
 - `make_svg`
@@ -115,6 +119,8 @@ The hosted MCP server exposes tools including:
 - `search_news`
 
 `render_presentation` returns an editor URL and structured deck preview metadata. Hosts that support MCP app widgets may render an inline deck preview; other hosts should still show the text response and editor URL.
+
+For revisions to an existing deck, use `get_deck` to fetch the current slides and `edit_deck` to update that same deck id. Do not call `render_presentation` just to make a revised copy unless the user explicitly asks for a new deck.
 
 ## Claude Code
 
