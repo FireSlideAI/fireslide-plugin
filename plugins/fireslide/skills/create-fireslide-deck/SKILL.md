@@ -31,6 +31,9 @@ Use the hosted Fireslide MCP server to create editable presentation decks that o
 4. Use media and research tools intentionally.
    - Use Fireslide search tools only when the returned result will be placed in the deck artifact.
    - For general background research, rely on the host assistant's available context/search or ask the user for source material.
+   - If the user attached or uploaded images and a deck already exists, call `import_deck_asset` when the host exposes a temporary/public URL. Use the returned durable URL in image element `src` fields.
+   - If the host can only pass image bytes, call `upload_deck_asset` with base64 image bytes and use the returned URL in image element `src` fields.
+   - Use `list_deck_assets` to reuse images already imported into the same deck instead of importing duplicates.
    - `search_news`: current events, recent company news, daily briefings, market updates that will be cited or summarized on slides.
    - `search_images`: real photos, products, places, people, logos, screenshots that will be used on slides.
    - `generate_image`: bespoke illustrations or scenes.
@@ -60,6 +63,7 @@ Use this workflow when the user asks to edit, revise, update, fix, move, delete,
 3. Apply the smallest safe edit.
    - Call `edit_deck`, not `render_presentation`, for existing deck revisions.
    - `edit_deck` mutates the same deck id and keeps the same editor URL.
+   - For newly supplied user images, import them with `import_deck_asset` or `upload_deck_asset` first, then reference the returned asset URL in the replacement or inserted slide.
    - Use one or a few simple operations: `replace`, `insert`, `delete`, or `move`.
    - For a targeted text or layout tweak inside one slide, preserve the fetched slide and send a `replace` operation for only that slide with the requested element changed. Keep existing element ids, slide metadata, coordinates, z-order, fonts, colors, and unrelated text intact.
    - When the user names an element id, such as `drag_label`, target that element exactly. If they describe selected text, use the selected-context text, slide number, and element id when available.
@@ -93,6 +97,7 @@ When authoring explicit elements:
 - Element properties are flat at the element root. Do not nest visual fields under `style`, `props`, `attributes`, or `data`.
 - Use snake_case fields such as `font_size`, `font_weight`, `font_family`, and `line_height`.
 - Use returned image URLs in image element `src` fields. Do not invent image URLs.
+- For user-provided images, prefer durable URLs returned by `import_deck_asset` or `upload_deck_asset` over temporary host URLs.
 
 Common element fields:
 
