@@ -19,14 +19,17 @@ Use the hosted Fireslide MCP server to create editable presentation decks that o
 2. Pick a visual system.
    - Call `list_styles` with the user's topic, audience, and style intent.
    - Choose the closest style returned by the server.
-   - Call `get_style` for the selected style before authoring slides.
-   - Prefer a lightweight first call to inspect available subtype keys, then request only the subtype templates needed for the deck when the tool supports that mode.
+   - Call `get_style` for the selected style without `sub_types` first. This compact response keeps every available layout visible without sending full templates.
+   - Choose exact layout keys from the compact catalog, then call `get_style` again with only the layouts needed for the deck, in small batches.
+   - If the response mode is `selection_required`, select explicit keys from the returned compact catalog and retry. If the tool reports `response_too_large`, retry with a smaller batch.
+   - Do not request wildcard or all-layout expansion during normal authoring.
 
 3. Author against the returned style contract.
    - Use only `sub_type` values returned by `get_style`.
-   - Prefer returned templates and mutate text, image URLs, colors, and layout.
+   - Prefer returned templates. For built-in and scratch styles, mutate only the fields needed for the requested content.
+   - When top-level `source` is `imported` or `source_kind` is `pptx_import`, preserve the template and use only the returned stable-ID patch contract; do not add, delete, move, resize, restyle, or recolor imported elements.
    - Prefer `fill` when a returned `fill_schema` exists.
-   - Use explicit `elements` when freeform layout control is needed.
+   - Use explicit `elements` when freeform layout control is needed for built-in or scratch styles, not imported PPTX layouts.
 
 4. Use media and research tools intentionally.
    - Use Fireslide search tools only when the returned result will be placed in the deck artifact.
