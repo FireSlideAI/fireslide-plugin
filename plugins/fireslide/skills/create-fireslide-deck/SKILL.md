@@ -60,22 +60,24 @@ Use this workflow when the user asks to edit, revise, update, fix, move, delete,
    - If the user gives an editor URL, extract the id from `/editor/decks/{deck_id}`.
 
 2. Fetch the current deck before editing.
-   - Call `get_deck` unless the current slide JSON is already available in this conversation.
-   - Use the returned `slide_number` values for all edit operations.
+   - Start with `get_deck` in its default outline mode. The outline keeps review compact while returning useful summaries, stable `slide_id` values, and the opaque `state_token` needed to edit safely.
+   - Before replacing or closely inspecting a slide, call `get_deck` with `detail: "selected"` and only the relevant `slide_ids`. Use `detail: "full"` only when every slide's materialized elements are genuinely needed.
+   - Use the latest returned `state_token` as `expected_state_token` on `edit_deck`. Do not invent, cache across unrelated turns, or expose it as a user-visible revision number.
 
 3. Apply the smallest safe edit.
    - Call `edit_deck`, not `render_presentation`, for existing deck revisions.
    - `edit_deck` mutates the same deck id and keeps the same editor URL.
    - For newly supplied user images, import them with `import_deck_asset` or `upload_deck_asset` first, then reference the returned asset URL in the replacement or inserted slide.
-   - Use one or a few simple operations: `replace`, `insert`, `delete`, or `move`.
+   - Use one or a few simple operations: `replace`, `insert`, `delete`, or `move`. Target replace/delete/move with stable `slide_id`; use `after_slide_id` for insert/move anchors (`null` means the top).
    - For a targeted text or layout tweak inside one slide, preserve the fetched slide and send a `replace` operation for only that slide with the requested element changed. Keep existing element ids, slide metadata, coordinates, z-order, fonts, colors, and unrelated text intact.
-   - When the user names an element id, such as `drag_label`, target that element exactly. If they describe selected text, use the selected-context text, slide number, and element id when available.
+   - When the user names an element id, such as `drag_label`, target that element exactly. If they describe selected text, use the selected-context text, stable slide id, and element id when available.
+   - If `edit_deck` returns `deck_state_changed`, refetch the outline and selected slide detail once, rebuild the operations against the new IDs/state token, and retry once. Do not blindly replay the stale request.
 
 4. Return the revision result.
    - Tell the user the deck was edited in place.
    - Return the same Fireslide editor URL.
-   - If the host renders MCP app/widget responses, let the widget attached to `edit_deck` act as the immediate preview.
-   - Do not call `show_deck_preview` immediately after `edit_deck`; use it only in a later recovery turn when the inline widget did not appear.
+   - Treat `edit_deck` as a compact acknowledgement: it returns the new state token, slide count, changed slide IDs, and final outline, not the full deck.
+   - Do not call `show_deck_preview` immediately after `edit_deck`; use it only in a later recovery turn when the user asks to verify the revised deck visually.
 
 ## Current News
 
