@@ -2,7 +2,7 @@
 
 Fireslide is a Codex plugin and MCP setup for creating editable presentation decks through the hosted Fireslide MCP server.
 
-It lets Codex choose Fireslide styles, use deck-specific media and news tools, import user-provided images into deck assets, render editable decks, show deck preview metadata on compatible hosts, and return a Fireslide editor URL.
+It lets Codex discover the live Fireslide capabilities, choose styles, import user-provided images into deck assets, render editable decks, and return a Fireslide editor URL.
 It also guides Codex to revise an existing Fireslide deck in place when the user provides a Fireslide editor URL or presentation id.
 
 The plugin does not include the Fireslide backend or renderer. It only packages Codex metadata, a deck-creation skill, and a remote MCP server config for the hosted Fireslide service.
@@ -102,30 +102,13 @@ url = "https://mcp.fireslide.ai"
 
 Direct MCP exposes the tools, but it does not install the `create-fireslide-deck` skill or plugin metadata. For normal users, prefer the plugin marketplace setup.
 
-## Main Tools
+## Live MCP Contract
 
-The hosted MCP server exposes tools including:
+The hosted server is the canonical source for the current tool set and schemas. Discover its live capabilities before acting; this setup plugin intentionally does not maintain a fixed catalog.
 
-- `list_styles`
-- `get_style`
-- `render_presentation`
-- `get_deck`
-- `edit_deck`
-- `show_deck_preview`
-- `import_deck_asset`
-- `upload_deck_asset`
-- `list_deck_assets`
-- `search_images`
-- `generate_image`
-- `make_svg`
-- `make_meme`
-- `search_news`
+For new decks, retrieve a compact style view first, then request only selected layouts. For existing decks, read an outline before requesting selected slide detail, and edit stable slide IDs with the returned state token. Imported layouts may expose a `patches` contract that must be preserved.
 
-`render_presentation` returns an editor URL and structured deck preview metadata. Hosts that support MCP app widgets may render an inline deck preview; other hosts should still show the text response and editor URL.
-
-For revisions to an existing deck, use `get_deck` to fetch the current slides and `edit_deck` to update that same deck id. Do not call `render_presentation` just to make a revised copy unless the user explicitly asks for a new deck.
-
-For images the user already attached to Codex, Claude, or another MCP host, use `import_deck_asset` when the host exposes a temporary URL, or `upload_deck_asset` when the host can only pass base64 image bytes. Both tools return a durable URL for image element `src` fields. Use `list_deck_assets` to reuse previously imported deck images.
+Choose the asset route that the host can support: URL import, base64 upload, or direct upload. Visual and research helpers are optional live capabilities; a media failure must not prevent rendering. Return the exact full Fireslide `view_url` or editor URL from the render or edit result.
 
 ## Claude Code
 
