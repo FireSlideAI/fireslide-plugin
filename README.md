@@ -106,9 +106,9 @@ Direct MCP exposes the tools, but it does not install the `create-fireslide-deck
 
 The hosted server is the canonical source for the current tool set and schemas. Discover its live capabilities before acting; this setup plugin intentionally does not maintain a fixed catalog.
 
-For new decks, retrieve a compact style view first, then request only selected layouts. For existing decks, read an outline before requesting selected slide detail, and edit stable slide IDs with the returned state token. Imported layouts may expose a `patches` contract that must be preserved.
+For new decks, retrieve a compact style view first, then request only selected layouts. For existing decks, read an outline before requesting selected slide detail, and edit stable slide IDs with the returned state token. Imported layouts may expose a `patches` contract: target only approved stable element IDs and permitted fields, preserving every unmentioned layout element and content.
 
-Choose the asset route that the host can support: URL import, base64 upload, or direct upload. Visual and research helpers are optional live capabilities; a media failure must not prevent rendering. Return the exact full Fireslide `view_url` or editor URL from the render or edit result.
+Choose the asset route that the host can support: URL import, base64 upload, or direct upload. The live direct-upload capability returns a short-lived single-use signed upload_url; use it only when the host can POST a local file. POST the raw local file as multipart field `image`, then use the durable asset `url` from that upload response. Visual and research helpers are optional live capabilities; a media failure must not prevent rendering. Return the exact full Fireslide `view_url` or editor URL from the render or edit result.
 
 ## Claude Code
 

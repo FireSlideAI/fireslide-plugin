@@ -14,24 +14,50 @@ CONTRACT_SOURCES = {
     "MCP config": REPO_ROOT / "plugins" / "fireslide" / ".mcp.json",
 }
 RETIRED_TOOL_NAMES = ("show_deck_preview", "make_meme", "search_memes")
+CATALOG_CLAIM_PATTERN = re.compile(
+    r"(?im)^#{1,6}\s+(?:main\s+tools|tool\s+catalog)\b"
+    r"|\btools?\s+include\b"
+    r"|\bexposes\s+the\s+following\s+tools\b"
+    r"|\b(?:offers|exposes|includes|has)\s+\d+\s+(?:mcp\s+)?tools?\b"
+)
+
+
+def read_contract_sources():
+    return {
+        source_name: source_path.read_text(encoding="utf-8").lower()
+        for source_name, source_path in CONTRACT_SOURCES.items()
+    }
 
 
 def test_setup_sources_do_not_reference_retired_tools():
-    for source_name, source_path in CONTRACT_SOURCES.items():
-        contents = source_path.read_text(encoding="utf-8")
+    for source_name, contents in read_contract_sources().items():
         for tool_name in RETIRED_TOOL_NAMES:
             assert tool_name not in contents, f"{source_name} references retired {tool_name}"
 
 
-def test_setup_sources_defer_to_live_tool_discovery():
-    combined_contents = "\n".join(
-        source_path.read_text(encoding="utf-8")
-        for source_path in CONTRACT_SOURCES.values()
-    ).lower()
+def test_each_setup_source_defers_to_live_discovery_without_a_catalog():
+    for source_name, contents in read_contract_sources().items():
+        assert "live" in contents, f"{source_name} must defer to live discovery"
+        assert "discover" in contents, f"{source_name} must tell Codex to discover"
+        assert "canonical" in contents, f"{source_name} must name the server canonical"
+        assert not CATALOG_CLAIM_PATTERN.search(contents), (
+            f"{source_name} claims a fixed tool catalog"
+        )
 
-    assert not re.search(
-        r"\b(?:offers|exposes|includes|has)\s+\d+\s+(?:mcp\s+)?tools?\b",
-        combined_contents,
-    )
-    assert "## main tools" not in combined_contents
-    assert "live" in combined_contents and "discover" in combined_contents
+
+def test_readme_and_skill_preserve_imported_patch_contract():
+    for source_name in ("README", "deck skill"):
+        contents = read_contract_sources()[source_name]
+        assert "patches" in contents
+        assert "approved stable element ids" in contents
+        assert "permitted fields" in contents
+        assert "unmentioned layout element" in contents
+
+
+def test_readme_and_skill_explain_signed_direct_upload():
+    for source_name in ("README", "deck skill"):
+        contents = read_contract_sources()[source_name]
+        assert "short-lived single-use signed upload_url" in contents
+        assert "post a local file" in contents
+        assert "multipart field `image`" in contents
+        assert "durable asset `url`" in contents

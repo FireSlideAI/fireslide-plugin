@@ -17,7 +17,7 @@ Ask a short clarifying question only when missing audience, goal, tone, slide co
 
 1. Discover the live style capability and choose a style appropriate to the request.
 2. Call `get_style` for the selected style without layouts first. Use that compact response to choose layout keys, then call `get_style` again for only the selected layouts in small batches. Follow any selection or response-size guidance returned by the live schema.
-3. Author only against the returned style contract. If a selected imported layout exposes a `patches` contract, preserve the layout and use those patches rather than rebuilding its elements.
+3. Author only against the returned style contract. If a selected imported layout exposes a `patches` contract, target only approved stable element IDs and permitted fields, preserving every unmentioned layout element and content rather than rebuilding the layout.
 4. Use the live render capability with the selected style and completed slides. Return the exact full Fireslide `view_url` or editor URL that it returns.
 
 ## Revise an Existing Deck
@@ -34,9 +34,15 @@ Choose the asset route supported by the current host and live schema:
 
 - URL route: import an attachment when the host exposes a temporary or public URL, then use the returned durable asset URL.
 - Base64 route: upload image bytes when the host can provide base64, then use the returned durable asset URL.
-- Direct-upload route: use a host-provided direct upload when available, then use its returned durable asset URL.
+- Direct-upload route: the live capability returns a short-lived single-use signed upload_url. Use it only when the host can POST a local file; POST the raw local file as multipart field `image`, then use the durable asset `url` from that upload response.
 
 Visual and research helpers are optional capabilities discovered from the live server. Use them only when their result will improve the deck. If a visual or research call fails, is unavailable, or is quota-limited, continue rendering with the available content and briefly state the limitation.
+
+## Quality Bar
+
+- Keep one main idea per slide and make content readable with sufficient margins.
+- Follow the requested copy, language, and style.
+- Do not add unrequested decoration or sections.
 
 ## User-Facing Result
 
