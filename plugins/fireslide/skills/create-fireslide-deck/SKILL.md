@@ -15,7 +15,7 @@ Ask a short clarifying question only when missing audience, goal, tone, slide co
 
 ## Route Layout Intent
 
-A source layout is optional: normal fresh deck creation uses the selected target style's full layouts or a flexible/default authoring path. Use manifest detail only for imported patching or a specifically named external layout. When the user names a specific external slide or layout, use faithful transfer through the live render or edit schema. When the user asks for a deck inspired by a source, create a new composition in the target style instead. The live server schema remains canonical.
+A source layout is optional: normal fresh deck creation uses the selected target style's full layouts or a flexible/default authoring path. Route on intent before the presence of a named source: inspiration, similarity, or idea requests always take precedence, even when the user also names a specific external slide or layout. For those requests, create a new composition inspired by the source in the target style. Use faithful transfer only when a specific external slide or layout is named without inspiration, similarity, or idea intent. Without inspiration, similarity, or idea intent, requests to copy, reproduce, preserve, or match the named source exactly use faithful transfer. A selected imported layout may use manifest detail for its faithful copy-and-patch path. For cross-style requests, retrieve source manifest detail only for faithful transfer; never retrieve it for the inspiration route. Use the live render or edit schema for faithful transfer. The live server schema remains canonical.
 
 ## Create a Deck
 
@@ -29,7 +29,7 @@ A source layout is optional: normal fresh deck creation uses the selected target
 1. Identify the existing deck from the supplied editor URL, presentation ID, or a prior result in this conversation.
 2. Call `get_deck` in outline mode first. It provides stable slide IDs and the current state token without retrieving unnecessary slide material.
 3. Call `get_deck` again only for selected slide IDs when the requested change needs slide detail. Target edits by stable slide ID and send the latest returned state token with the change.
-4. Make the smallest change that satisfies the request. For a named external layout, preserve the live edit schema's `slide.transfer` route when applicable. If the server reports a changed deck state, refetch the outline and selected slides, rebuild against the latest IDs and state token, and retry once.
+4. Make the smallest change that satisfies the request. When faithful transfer was selected under Route Layout Intent, preserve the live edit schema's `slide.transfer` route when applicable. If the server reports a changed deck state, refetch the outline and selected slides, rebuild against the latest IDs and state token, and retry once.
 5. Return the exact full Fireslide `view_url` or editor URL from the edit result.
 
 ## Assets, Media, and Research
