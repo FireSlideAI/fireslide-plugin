@@ -3,7 +3,7 @@
     "fireslide": {
       "type": "http",
       "url": "https://mcp.fireslide.ai",
-      "note": "Hosted Fireslide MCP server using Streamable HTTP. Uses OAuth on first connection. Tools include list_styles, get_style, render_presentation, get_deck, edit_deck, show_deck_preview, search_images, generate_image, make_svg, make_meme, and search_news."
+      "note": "Hosted Fireslide MCP server using Streamable HTTP and OAuth on first connection. Discover live tools and schemas before acting; the server is canonical and this setup plugin does not maintain a fixed catalog."
     }
   }
 }

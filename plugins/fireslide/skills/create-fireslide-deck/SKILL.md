@@ -5,120 +5,45 @@ description: Use when the user asks Codex to create, design, revise, render, or 
 
 # Create Fireslide Deck
 
-Use the hosted Fireslide MCP server to create editable presentation decks that open in the Fireslide editor.
+Use the hosted Fireslide MCP server to create and revise editable presentation decks. This plugin supplies Codex workflow glue; live server discovery and tool schemas are always canonical.
 
-## Core Workflow
+## Start With Live Discovery
 
-1. Treat normal presentation requests as deck creation requests.
-   - Examples: "make a deck", "help me create slides", "turn this into a presentation", "build a pitch deck", "make an executive briefing".
-   - If the user provides an existing Fireslide editor URL, presentation id, or asks to change a deck just rendered in this conversation, treat it as a revision request and use the Existing Deck Revisions workflow below.
-   - Ask a short clarifying question before rendering when missing basics materially change the result: audience, goal, tone, slide count, source material, language, or desired output.
-   - Do not ask for chain-of-thought. Ask for user-facing brief details only.
-   - If the request is already specific enough, infer slide count, audience, language, and tone from the prompt.
+Before acting, inspect the live tools and schemas available from the Fireslide server. Do not assume a fixed tool count or reproduce a tool catalog here. Select only capabilities that the live server exposes and that the user's request needs.
 
-2. Pick a visual system.
-   - Call `list_styles` with the user's topic, audience, and style intent.
-   - Choose the closest style returned by the server.
-   - Call `get_style` for the selected style before authoring slides.
-   - Prefer a lightweight first call to inspect available subtype keys, then request only the subtype templates needed for the deck when the tool supports that mode.
+Ask a short clarifying question only when missing audience, goal, tone, slide count, source material, language, or output would materially change the deck. Otherwise infer those basics from the request.
 
-3. Author against the returned style contract.
-   - Use only `sub_type` values returned by `get_style`.
-   - Prefer returned templates and mutate text, image URLs, colors, and layout.
-   - Prefer `fill` when a returned `fill_schema` exists.
-   - Use explicit `elements` when freeform layout control is needed.
+## Create a Deck
 
-4. Use media and research tools intentionally.
-   - Use Fireslide search tools only when the returned result will be placed in the deck artifact.
-   - For general background research, rely on the host assistant's available context/search or ask the user for source material.
-   - `search_news`: current events, recent company news, daily briefings, market updates that will be cited or summarized on slides.
-   - `search_images`: real photos, products, places, people, logos, screenshots that will be used on slides.
-   - `generate_image`: bespoke illustrations or scenes.
-   - `make_svg`: one transparent hero cutout or object on a colored background.
-   - `make_meme`: humor, meme recaps, or lightweight interstitial slides.
+1. Discover the live style capability and choose a style appropriate to the request.
+2. Call `get_style` for the selected style without layouts first. Use that compact response to choose layout keys, then call `get_style` again for only the selected layouts in small batches. Follow any selection or response-size guidance returned by the live schema.
+3. Author only against the returned style contract. If a selected imported layout exposes a `patches` contract, target only approved stable element IDs and permitted fields, preserving every unmentioned layout element and content rather than rebuilding the layout.
+4. Use the live render capability with the selected style and completed slides. Return the exact full Fireslide `view_url` or editor URL that it returns.
 
-5. Render.
-   - Call `render_presentation` with `user_input`, `style_name`, `title`, and complete `slides`.
-   - Return the Fireslide editor URL to the user.
-   - If the host renders MCP app/widget responses, let the widget attached to `render_presentation` act as the immediate preview.
-   - Do not call `show_deck_preview` immediately after `render_presentation`; that creates a second tool card. Use `show_deck_preview` only in a later recovery turn when the user says the inline widget did not appear or asks to recover the already-created deck link.
-   - If no widget appears, the editor URL from `render_presentation` is the reliable fallback.
-   - Tell the user the deck can be edited and exported from Fireslide.
+## Revise an Existing Deck
 
-## Existing Deck Revisions
+1. Identify the existing deck from the supplied editor URL, presentation ID, or a prior result in this conversation.
+2. Call `get_deck` in outline mode first. It provides stable slide IDs and the current state token without retrieving unnecessary slide material.
+3. Call `get_deck` again only for selected slide IDs when the requested change needs slide detail. Target edits by stable slide ID and send the latest returned state token with the change.
+4. Make the smallest change that satisfies the request. If the server reports a changed deck state, refetch the outline and selected slides, rebuild against the latest IDs and state token, and retry once.
+5. Return the exact full Fireslide `view_url` or editor URL from the edit result.
 
-Use this workflow when the user asks to edit, revise, update, fix, move, delete, or rewrite content in an existing Fireslide deck.
+## Assets, Media, and Research
 
-1. Identify the deck id.
-   - Use the `presentation_id` returned by `render_presentation` or `edit_deck`.
-   - If the user gives an editor URL, extract the id from `/editor/decks/{deck_id}`.
+Choose the asset route supported by the current host and live schema:
 
-2. Fetch the current deck before editing.
-   - Call `get_deck` unless the current slide JSON is already available in this conversation.
-   - Use the returned `slide_number` values for all edit operations.
+- URL route: import an attachment when the host exposes a temporary or public URL, then use the returned durable asset URL.
+- Base64 route: upload image bytes when the host can provide base64, then use the returned durable asset URL.
+- Direct-upload route: the live capability returns a short-lived single-use signed upload_url. Use it only when the host can POST a local file; POST the raw local file as multipart field `image`, then use the durable asset `url` from that upload response.
 
-3. Apply the smallest safe edit.
-   - Call `edit_deck`, not `render_presentation`, for existing deck revisions.
-   - `edit_deck` mutates the same deck id and keeps the same editor URL.
-   - Use one or a few simple operations: `replace`, `insert`, `delete`, or `move`.
-   - For a targeted text or layout tweak inside one slide, preserve the fetched slide and send a `replace` operation for only that slide with the requested element changed. Keep existing element ids, slide metadata, coordinates, z-order, fonts, colors, and unrelated text intact.
-   - When the user names an element id, such as `drag_label`, target that element exactly. If they describe selected text, use the selected-context text, slide number, and element id when available.
-
-4. Return the revision result.
-   - Tell the user the deck was edited in place.
-   - Return the same Fireslide editor URL.
-   - If the host renders MCP app/widget responses, let the widget attached to `edit_deck` act as the immediate preview.
-   - Do not call `show_deck_preview` immediately after `edit_deck`; use it only in a later recovery turn when the inline widget did not appear.
-
-## Current News
-
-For prompts mentioning latest, today, current, recent, news, this week, market update, industry update, company update, or daily briefing:
-
-1. Call `search_news` before drafting.
-2. Use returned article titles, source domains, snippets, dates, and images as source material.
-3. Put only the relevant sourced points into the deck; do not call news search for facts that will not appear in the deck.
-4. Do not invent fresh headlines, quotes, dates, or exact statistics.
-5. If `search_news` fails or is quota-limited, tell the user and retry once with a simpler query.
-
-## Freeform Element Rules
-
-When authoring explicit elements:
-
-- Fireslide uses a 1280x720 pixel canvas.
-- `x`, `y`, `w`, and `h` are absolute pixels.
-- Good values look like `x:80`, `y:96`, `w:1120`, `h:90`.
-- Never use grid or inch-like values such as `x:1`, `y:2`, `w:10`, `h:1.5`.
-- Every slide must include `slide_meta` with `width:1280`, `height:720`, and a hex `background`.
-- Every element must include `id`, `type`, `x`, `y`, `w`, `h`, and `z`.
-- Element properties are flat at the element root. Do not nest visual fields under `style`, `props`, `attributes`, or `data`.
-- Use snake_case fields such as `font_size`, `font_weight`, `font_family`, and `line_height`.
-- Use returned image URLs in image element `src` fields. Do not invent image URLs.
-
-Common element fields:
-
-- `text`: `text`, `font_family`, `font_size`, `font_weight`, `color`, `align`, `line_height`
-- `image`: `src`, `fit`, `radius`
-- `shape`: `shape`, `fill`, `opacity`, `radius`, `points`
-- `icon`: `icon`, `style`, `color`, `font_size`
-- `mermaid`: `source`
-- `chart`: `engine`, `option`
+Visual and research helpers are optional capabilities discovered from the live server. Use them only when their result will improve the deck. If a visual or research call fails, is unavailable, or is quota-limited, continue rendering with the available content and briefly state the limitation.
 
 ## Quality Bar
 
-- One main idea per slide.
-- Prefer fewer, stronger slides over crowded layouts.
-- Keep text readable and inside its boxes.
-- Use generous margins.
-- Follow user-specified colors, copy, typography, language, and slide-by-slide instructions exactly.
-- Do not add decorative graphics, stock photos, gradients, or extra sections unless requested.
-- If a paid media tool returns a quota or upgrade error, continue with text, simple shapes, or placeholders and explain the limitation briefly.
+- Keep one main idea per slide and make content readable with sufficient margins.
+- Follow the requested copy, language, and style.
+- Do not add unrequested decoration or sections.
 
 ## User-Facing Result
 
-After rendering, respond with:
-
-- deck title
-- one-sentence summary of what was created
-- Fireslide editor URL
-- note that compatible MCP app hosts may show the inline deck preview attached to the render result
-- any media, search, or quota limitations encountered
+Tell the user what was created or revised, note any media limitation, and return the exact full Fireslide `view_url` or editor URL. The deck remains editable and exportable in Fireslide.

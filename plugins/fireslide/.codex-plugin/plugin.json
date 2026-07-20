@@ -1,7 +1,7 @@
 {
   "name": "fireslide",
-  "version": "0.2.1",
-  "description": "Create, edit, and export Fireslide presentations through the hosted Fireslide MCP server.",
+  "version": "0.2.3",
+  "description": "Create, edit, import image assets, and export Fireslide presentations through the hosted Fireslide MCP server.",
   "author": {
     "name": "FireslideAI",
     "email": "support@fireslide.ai",
@@ -22,7 +22,7 @@
   "interface": {
     "displayName": "Fireslide",
     "shortDescription": "Generate editable presentation decks.",
-    "longDescription": "Fireslide connects Codex to the hosted Fireslide MCP server for style-aware presentation authoring, existing-deck revisions, intentional media and news research, deck preview metadata, editor handoff, and PPTX export from Fireslide.",
+    "longDescription": "Fireslide connects Codex to the hosted Fireslide MCP server for style-aware presentation authoring, existing-deck revisions, user-provided image asset import, intentional media and news research, deck preview metadata, editor handoff, and PPTX export from Fireslide.",
     "developerName": "FireslideAI",
     "category": "Productivity",
     "capabilities": [
