@@ -1,3 +1,4 @@
+import json
 from pathlib import Path
 import re
 
@@ -78,6 +79,33 @@ def test_readme_and_skill_explain_signed_direct_upload():
         assert "post a local file" in contents
         assert "multipart field `image`" in contents
         assert "durable asset `url`" in contents
+
+
+def test_readme_and_skill_distinguish_exact_transfer_from_inspiration():
+    for source_name in ("README", "deck skill"):
+        contents = read_contract_sources()[source_name]
+        assert "specific external slide or layout" in contents
+        assert "faithful transfer" in contents
+        assert "inspired by" in contents
+        assert "new composition" in contents
+        assert "target style" in contents
+
+
+def test_readme_and_skill_preserve_normal_fresh_authoring():
+    for source_name in ("README", "deck skill"):
+        contents = read_contract_sources()[source_name]
+        assert "source layout is optional" in contents
+        assert "normal fresh" in contents
+        assert "full layout" in contents
+        assert "flexible" in contents or "default" in contents
+
+
+def test_plugin_release_version_is_0_2_4():
+    manifest = json.loads(
+        (REPO_ROOT / "plugins" / "fireslide" / ".codex-plugin" / "plugin.json")
+        .read_text(encoding="utf-8")
+    )
+    assert manifest["version"] == "0.2.4"
 
 
 @pytest.mark.parametrize(

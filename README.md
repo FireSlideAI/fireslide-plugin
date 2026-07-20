@@ -108,6 +108,8 @@ The hosted server is the canonical source for the current tool set and schemas. 
 
 For new decks, retrieve a compact style view first, then request only selected layouts. For existing decks, read an outline before requesting selected slide detail, and edit stable slide IDs with the returned state token. Imported layouts may expose a `patches` contract: target only approved stable element IDs and permitted fields, preserving every unmentioned layout element and content.
 
+A source layout is optional: normal fresh deck creation uses the selected target style's full layouts or a flexible/default authoring path. Use manifest detail only for imported patching or a specifically named external layout. When the user names a specific external slide or layout, use faithful transfer through the live render or edit schema (including edit `slide.transfer` when applicable). When the user asks for a deck inspired by a source, create a new composition in the target style instead. The live server schema remains canonical.
+
 Choose the asset route that the host can support: URL import, base64 upload, or direct upload. The live direct-upload capability returns a short-lived single-use signed upload_url; use it only when the host can POST a local file. POST the raw local file as multipart field `image`, then use the durable asset `url` from that upload response. Visual and research helpers are optional live capabilities; a media failure must not prevent rendering. Return the exact full Fireslide `view_url` or editor URL from the render or edit result.
 
 ## Claude Code
