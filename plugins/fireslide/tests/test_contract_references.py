@@ -142,12 +142,27 @@ def test_readme_and_skill_preserve_normal_fresh_authoring():
         assert "flexible" in contents or "default" in contents
 
 
-def test_plugin_release_version_is_0_2_4():
+def test_plugin_release_version_is_0_2_5():
     manifest = json.loads(
         (REPO_ROOT / "plugins" / "fireslide" / ".codex-plugin" / "plugin.json")
         .read_text(encoding="utf-8")
     )
-    assert manifest["version"] == "0.2.4"
+    assert manifest["version"] == "0.2.5"
+
+
+def test_readme_and_skill_require_bounded_post_write_review():
+    for source_name in ("README", "deck skill"):
+        contents = read_contract_sources()[source_name]
+        assert "after every successful render or edit" in contents or (
+            "after a successful render or edit" in contents
+        )
+        assert "latest state token" in contents
+        assert "affected slide" in contents
+        assert "individual slide image" in contents
+        assert "review rendering fails" in contents
+        assert "rather than rendering it again" in contents or (
+            "do not recreate the deck" in contents
+        )
 
 
 @pytest.mark.parametrize(
