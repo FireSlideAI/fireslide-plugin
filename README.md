@@ -2,7 +2,7 @@
 
 Fireslide is a Codex plugin and MCP setup for creating editable presentation decks through the hosted Fireslide MCP server.
 
-It lets Codex discover the live Fireslide capabilities, choose styles, import user-provided images into deck assets, render editable decks, and return a Fireslide editor URL.
+It lets Codex discover the live Fireslide capabilities, choose styles, import user-provided images into deck assets, render and visually review editable decks, and return a Fireslide editor URL.
 It also guides Codex to revise an existing Fireslide deck in place when the user provides a Fireslide editor URL or presentation id.
 
 The plugin does not include the Fireslide backend or renderer. It only packages Codex metadata, a deck-creation skill, and a remote MCP server config for the hosted Fireslide service.
@@ -108,7 +108,11 @@ The hosted server is the canonical source for the current tool set and schemas. 
 
 For new decks, retrieve a compact style view first, then request only selected layouts. For existing decks, read an outline before requesting selected slide detail, and edit stable slide IDs with the returned state token. Imported layouts may expose a `patches` contract: target only approved stable element IDs and permitted fields, preserving every unmentioned layout element and content.
 
-Choose the asset route that the host can support: URL import, base64 upload, or direct upload. The live direct-upload capability returns a short-lived single-use signed upload_url; use it only when the host can POST a local file. POST the raw local file as multipart field `image`, then use the durable asset `url` from that upload response. Visual and research helpers are optional live capabilities; a media failure must not prevent rendering. Return the exact full Fireslide `view_url` or editor URL from the render or edit result.
+A source layout is optional: normal fresh deck creation uses the selected target style's full layouts or a flexible/default authoring path. Route on intent before the presence of a named source: inspiration, similarity, or idea requests always take precedence, even when the user also names a specific external slide or layout. For those requests, create a new composition inspired by the source in the target style. Use faithful transfer only when a specific external slide or layout is named without inspiration, similarity, or idea intent. Without inspiration, similarity, or idea intent, requests to copy, reproduce, preserve, or match the named source exactly use faithful transfer. A selected imported layout may use manifest detail for its faithful copy-and-patch path. For cross-style requests, retrieve source manifest detail only for faithful transfer; never retrieve it for the inspiration route. Use the live render or edit schema for faithful transfer (including edit `slide.transfer` when applicable). The live server schema remains canonical.
+
+Choose the asset route that the host can support: URL import, base64 upload, or direct upload. The live direct-upload capability returns a short-lived single-use signed upload_url; use it only when the host can POST a local file. POST the raw local file as multipart field `image`, then use the durable asset `url` from that upload response. Visual and research helpers are optional live capabilities; a media failure must not prevent rendering.
+
+After a successful render or edit, use the live review capability when the write result requests it. Pass the latest state token and only the returned affected slide IDs, follow pagination until those slides are complete, and inspect each individual slide image. If review rendering fails, keep the successful deck and report the limitation rather than rendering it again. Return the exact full Fireslide `view_url` or editor URL from the original render or edit result.
 
 ## Claude Code
 
