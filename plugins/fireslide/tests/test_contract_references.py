@@ -142,12 +142,29 @@ def test_readme_and_skill_preserve_normal_fresh_authoring():
         assert "flexible" in contents or "default" in contents
 
 
-def test_plugin_release_version_is_0_2_5():
+def test_plugin_release_version_uses_0_2_6_base():
     manifest = json.loads(
         (REPO_ROOT / "plugins" / "fireslide" / ".codex-plugin" / "plugin.json")
         .read_text(encoding="utf-8")
     )
-    assert manifest["version"] == "0.2.5"
+    assert re.fullmatch(
+        r"0\.2\.6(?:\+codex\.[a-z0-9-]+)?",
+        manifest["version"],
+    )
+
+
+def test_readme_and_skill_define_bounded_web_capture_and_crop_workflow():
+    for source_name in ("README", "deck skill"):
+        contents = read_contract_sources()[source_name]
+        assert "`capture_webpage`" in contents
+        assert "`crop_image`" in contents
+        assert "public http" in contents
+        assert "inspect the returned image" in contents
+        assert "returned hosted url" in contents
+        assert "do not call" in contents
+        assert "every slide" in contents
+        assert "review is quality assurance" in contents
+        assert "source acquisition" in contents
 
 
 def test_readme_and_skill_require_bounded_post_write_review():

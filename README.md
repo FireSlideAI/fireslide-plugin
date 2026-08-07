@@ -112,6 +112,10 @@ A source layout is optional: normal fresh deck creation uses the selected target
 
 Choose the asset route that the host can support: URL import, base64 upload, or direct upload. The live direct-upload capability returns a short-lived single-use signed upload_url; use it only when the host can POST a local file. POST the raw local file as multipart field `image`, then use the durable asset `url` from that upload response. Visual and research helpers are optional live capabilities; a media failure must not prevent rendering.
 
+When the live server exposes `capture_webpage`, use it for a public HTTP(S) webpage only when the user needs a real chart, table, screenshot, or page section in the deck. Start with the normal viewport and use a full-page capture only when necessary. Inspect the returned image before cropping. When the live server exposes `crop_image`, use it to isolate the relevant region of that capture or another hosted source image, inspect the result, and repeat only if needed. Use the returned hosted URL as the slide image source.
+
+Do not call capture or crop for every slide or automatically after review. They are intentional source acquisition steps. Review is quality assurance for affected slides already written; capture and crop are source acquisition for slide content.
+
 After a successful render or edit, use the live review capability when the write result requests it. Pass the latest state token and only the returned affected slide IDs, follow pagination until those slides are complete, and inspect each individual slide image. If review rendering fails, keep the successful deck and report the limitation rather than rendering it again. Return the exact full Fireslide `view_url` or editor URL from the original render or edit result.
 
 ## Claude Code

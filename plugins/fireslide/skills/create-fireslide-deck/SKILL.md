@@ -52,6 +52,12 @@ Choose the asset route supported by the current host and live schema:
 
 Visual and research helpers are optional capabilities discovered from the live server. Use them only when their result will improve the deck. If a visual or research call fails, is unavailable, or is quota-limited, continue rendering with the available content and briefly state the limitation.
 
+When the user supplies a public HTTP(S) webpage or asks for a real chart, table, screenshot, or page section from one, use `capture_webpage` when the live server exposes it. Capture the normal viewport first; request a full-page capture only when the needed source is outside that viewport. Inspect the returned image before deciding whether it needs a crop.
+
+Use `crop_image` when the live server exposes it to isolate the relevant region of a captured page or another hosted source image. Crop with the live percentage-based schema, inspect the result, and repeat only if the first crop is still too broad. Use the returned hosted URL as the slide image source. Both helpers require a public HTTP(S) source; do not invent a URL for a local or inaccessible page.
+
+Do not call capture or crop automatically for every slide or after every deck review. They are source acquisition steps used only when a specific web visual improves the requested slide. Review is quality assurance for slides already written; capture and crop are source acquisition for slide content.
+
 ## Quality Bar
 
 - Keep one main idea per slide and make content readable with sufficient margins.
